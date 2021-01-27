@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="74e355ef-0135-4296-9e06-eefd911bbaeb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="0253b240-0493-44d0-ac86-00d7c161fb44" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="123456" database="mani" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="89a6723f-e756-4e1f-b9cb-3a35ad77ea80" file="dev.yaml" />
+	<db:config name="Database_Config1" doc:name="Database Config" doc:id="ed6e1f35-ab96-4dff-9b23-21dc5e232b6c" >
+		<db:my-sql-connection host="${secure::db.host}" port="${db.port}" user="${db.user}" password="${secure::db.password}" database="${db.dbname}" />
+	</db:config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="a4eb7567-49d1-4a69-89e6-b1278fd09f51" file="dev.properties" key="mani1" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="644b5918-2f27-42d0-a34e-b1949145a3ad" >
+		<http:listener-connection protocol="HTTPS" host="0.0.0.0" port="8082" >
+			<tls:context >
+				<tls:key-store type="pkcs12" path="httpsdemo-dev.p12" alias="server" keyPassword="123456" password="123456" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<flow name="db_demoFlow" doc:id="d0c3f62f-1a39-41f9-8f47-00d08785140c" >
+		<http:listener doc:name="Listener" doc:id="f3406549-aa18-41db-aa5c-d05d272e3d94" config-ref="HTTP_Listener_config1" path="${https.path}"/>
+		<db:select doc:name="Select" doc:id="897915f2-6804-4a65-addd-ccd70fd2eb87" config-ref="Database_Config1">
+			<db:sql ><![CDATA[select * from student;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="72c78b36-4d3e-4c36-942e-f379353e93d3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="95b54078-454a-436c-a3c9-c473ecbf9949" message="output"/>
+	</flow>
+</mule>
