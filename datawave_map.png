@@ -1,0 +1,82 @@
+Data wave :
+
+map: To iterate over a array of object and results array of objects.
+arrayofobjectspayload   map (iteam,indexOfEmp) ->{ }
+
+mapObject : to iterate over a object and result object 
+objectpayload mapObject(key,value,index) -> {}
+
+Filter : to filter over array of objects
+filter($.name == "mani")
+
+FilterObject: to filter over a object
+filterObject($.name == "mani")
+
+%dw 2.0
+output application/json
+var empList = [{
+
+	"name" :"mani",
+	"id" :"0111",
+	"number":6521566
+},
+ 	{
+	"name" :"nani",
+	"id" :"0112",
+	"number":6521566
+},
+	{
+	"name" :"chinni",
+	"id" :"0113",
+	"number":6521566
+
+}]
+---
+empList map {
+	($$):$ --> all array 
+	($$):$.name --> only name get
+}
+
+----------
+empList map(emp, indexOfEmp)->{
+	//id:$.id,    withoutparameter
+	//name:$.nameID, 	
+	//number:$.number
+	id:emp.id, with parameter
+	name:emp.nameID,
+	number:emp.number
+	
+mapObject:--
+empList[0] mapObject(namekey,value,indexOfEmp) ->{
+//($$):$
+ (namekey): indexOfEmp
+} 
+--- Adding values
+empList map(iteam,indexOfEmp) ->{
+(iteam mapObject
+	if ( ($) as String == "nani"){
+			($$):$,
+	"Location":"Hyderabad" ++ " "++ "Arraived"
+		} else 
+		{
+			($$):$
+		})
+
+} 
+
+--- Filter  :---
+
+empList filter($.id == "0111" and $.number == "1") map (iteam,indexOfEmp) 
+->{
+
+ename:iteam.nameId,
+id:iteam.id,
+number:iteam.number
+} 	
+
+FilterObject: like mapObject
+
+"mapObjectwithFilterObjact":empList[0] filterObject(($)== 0111) ->{
+//($$):$
+ (id): indexOfEmp
+}  
