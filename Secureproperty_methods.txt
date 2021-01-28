@@ -1,0 +1,51 @@
+common.propertie.file :--
+
+http.path=/sp
+
+dev.propertie.file :--
+
+db.host = ![qj3l+/BadSx+Rs9NBVfYPg==]
+db.port = "3306"
+db.user = "root"
+db.password = ![uLeLVcnXHSg=]
+db.dbname = "mani"
+http.path = "sp"
+http.port = "http://localhost:8081"
+  
+  
+       or 
+	   
+dev.yaml :- 
+
+db:
+  host: "![localhost]"
+  port: "3306"
+  user: "root"
+  password: "![uLeLVcnXHSg="
+  dbname: "mani"
+  
+  
+http:
+  path: "/db12"
+  port: "http://localhost:8081"
+ 
+ 
+ Db Connection Dynamic way :
+ 
+ Host : ${secure::db.host} --> for securefile  we have to write this way 
+ port : ${db.port}
+ user : ${db.user}
+ password : ${secure::db.password}
+ database : ${db.dbname}
+  
+  
+  ------
+ Add secure propertie config in palette:
+ 
+  File : dev.propertie ->> based on we recurirement .propertie or yaml 
+  key : for decrypet the values like password or host and db name 
+  Algorith : Blowfish 
+  Model : CBC
+  
+ 
+securty: java -cp secure-properties-tool.jar com.mulesoft.tools.SecurePropertiesTool 
